@@ -12,7 +12,7 @@ class NeuralNetwork:
 
         self.the_topology = topology
 
-        self.sections = np.empty(len(self.the_topology) - 1)
+        self.sections = np.empty(len(self.the_topology) - 1, dtype=object)
 
         if clone:
             return
@@ -21,16 +21,16 @@ class NeuralNetwork:
             self.sections[i] = NeuralSection(self.the_topology[i], self.the_topology[i + 1])
 
     def clone(self):
-        CLONE = NeuralNetwork(self.the_topology, True)
+        clone = NeuralNetwork(self.the_topology, True)
         for i, _ in enumerate(self.sections):
-            CLONE.sections[i] = self.sections[i].clone()
+            clone.sections[i] = self.sections[i].clone()
 
-        return CLONE
+        return clone
 
     @property
     def topology(self):
-        RES = np.zeros(len(self.the_topology), dtype = int)
-        return RES
+        res = np.zeros(len(self.the_topology), dtype=int) # Type to float
+        return res
 
     def feed_forward(self, input_data):
         if input_data is None:
@@ -45,39 +45,34 @@ class NeuralNetwork:
 
         return output
 
-    def mutate(self, mutation_probability = 1, mutation_amount = 2.0):
+    def mutate(self, mutation_probability=1, mutation_amount=2.0):
         for i, _ in enumerate(self.sections):
             self.sections[i].mutate(mutation_probability, mutation_amount)
 
 
 class NeuralSection:
-    def __init__(self, input_count = 0, output_count = 0):
+    def __init__(self, input_count=0, output_count=0):
         if input_count == 0:
             return
         elif output_count == 0:
             raise ValueError("You cannot create a Neural Layer with no output neurons.")
 
-        self.weights = np.empty(input_count + 1)
-
-        for i, _ in enumerate(self.weights):
-            self.weights[i] = np.empty(output_count)
+        # Эта часть с весами немного переписана
+        self.weights = np.empty((input_count + 1, output_count))
 
         for i, _ in enumerate(self.weights):
             for j, _ in enumerate(self.weights[i]):
                 self.weights[i][j] = np.random.random() - 0.5
 
     def clone(self):
-        CLONE = NeuralSection()
-        CLONE.weights = np.empty(len(self.weights))
-
-        for i, _ in enumerate(self.weights):
-            CLONE.weights[i] = np.empty(len(self.weights[i]))
+        clone = NeuralSection()
+        clone.weights = np.empty((len(self.weights), len(self.weights[0])))
 
         for i, _ in enumerate(self.weights):
             for j, _ in enumerate(self.weights[i]):
-                CLONE.weights[i][j] = self.weights[i][j]
+                clone.weights[i][j] = self.weights[i][j]
 
-        return CLONE
+        return clone
 
     def feed_forward(self, input_data):
         if input_data is None:
@@ -85,7 +80,7 @@ class NeuralSection:
         elif len(input_data) != len(self.weights) - 1:
             raise ValueError("The input array's length does not match the number of neurons in the input layer.")
 
-        output = np.zeros(len(self.weights[0]), dtype = int)
+        output = np.zeros(len(self.weights[0]))
 
         for i, _ in enumerate(self.weights):
             for j in range(len(self.weights[i])):
