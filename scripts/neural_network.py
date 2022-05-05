@@ -1,8 +1,18 @@
+"""Модуль содержит классы, описывающие нейросеть."""
+
 import numpy as np
 
 
 class NeuralNetwork:
+    """Создает нейросеть...
+
+    Параметры:
+    topology - топология нейросети;
+    clone - ..."""
+
     def __init__(self, topology, clone):
+        self.cost = 0
+
         if len(topology) < 2:
             raise ValueError("A Neural Network cannot contain less than 2 Layers.")
 
@@ -29,7 +39,8 @@ class NeuralNetwork:
 
     @property
     def topology(self):
-        res = np.zeros(len(self.the_topology), dtype=int) # Type to float
+        """Возвращает топологию в виде массива."""
+        res = np.zeros(len(self.the_topology), dtype=int) # Type to float - ?
         return res
 
     def feed_forward(self, input_data):
@@ -46,6 +57,9 @@ class NeuralNetwork:
         return output
 
     def mutate(self, mutation_probability=1, mutation_amount=2.0):
+        """Мутирует каждую секцию нейросети.
+
+        Параметры: ..."""
         for i, _ in enumerate(self.sections):
             self.sections[i].mutate(mutation_probability, mutation_amount)
 
