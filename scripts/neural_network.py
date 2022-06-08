@@ -32,6 +32,8 @@ class NeuralNetwork:
 
     def clone(self):
         clone = NeuralNetwork(self.the_topology, True)
+        clone.cost = self.cost
+
         for i, _ in enumerate(self.sections):
             clone.sections[i] = self.sections[i].clone()
 
@@ -56,12 +58,26 @@ class NeuralNetwork:
 
         return output
 
-    def mutate(self, mutation_probability=1, mutation_amount=2.0):
+    def mutate(self, mutation_probability=0.05, mutation_amount=5.0): #0.05, 1.0
         """Мутирует каждую секцию нейросети.
 
         Параметры: ..."""
         for i, _ in enumerate(self.sections):
             self.sections[i].mutate(mutation_probability, mutation_amount)
+
+    def get_params(self):
+        """Возвращает словарь с параметрами нейросети."""
+        nn_params = self.__dict__
+
+        for i, section in enumerate(self.sections, 1):
+            nn_params[f"weights{i}"] = vars(section)["weights"]
+
+        return nn_params
+
+    def set_weights(self, nn_params):
+        """Устанавливает значения весов нейросети из словаря nn_params."""
+        for i, section in enumerate(self.sections, 1):
+            section.weights = nn_params[f"weights{i}"]
 
 
 class NeuralSection:

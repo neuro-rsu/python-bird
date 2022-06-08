@@ -6,13 +6,13 @@ import pygame as pg
 
 import config as conf
 from scripts.bird import Bird
-from scripts.neural_network import NeuralNetwork
 
 
 class Game:
     """Описывает игровой экран и процесс игры."""
     FPS = 60
     BACKGROUND = (0, 178, 255)
+    SURF_INDENT = 10
 
     def __init__(self):
         # Установка параметров окна
@@ -27,11 +27,14 @@ class Game:
         self.clock = pg.time.Clock()
 
         # Инициализация игровых объектов
-        self.neural_net = NeuralNetwork(conf.NN_TOPOLOGY, False)
         self.population = 1
-        self.sprites = pg.sprite.Group()
+
+        self.game_surf = pg.Surface((conf.WIDTH,
+                                conf.HEIGHT - self.get_text_surf_height()))
+
+        self.birds = pg.sprite.Group()
         birds = self.create_objects()
-        self.sprites.add(birds)
+        self.birds.add(birds)
 
     @staticmethod
     def load_icon():
@@ -43,40 +46,65 @@ class Game:
 
     def create_objects(self):
         """Создаёт экземпляры класса Bird
-        и возвращает их в качестве списка."""
+        и возвращает их в качестве списка.
+        """
         birds = []
-        number_of_birds = int(self.screen.get_height() / conf.BIRD_SIZE[0])
+
+        number_of_birds = int(self.game_surf.get_height() / conf.BIRD_SIZE[0])
         for i in range(number_of_birds):
-            # Картинка с птичкой используется как иконка и как спрайт,
-            # поэтому загружается только в этом классе и
-            # используется при создании экземпляров класса Bird,
-            # чтобы не загружать её дважды
-            birds.append(Bird(self.icon, conf.BIRD_SIZE[0] * i, self.neural_net))
+            # Картинка с птичкой используется как иконка игры и как спрайт,
+            # поэтому загружается в этом классе
+            bird = Bird(self.icon, conf.BIRD_SIZE[0] * i, number_of_birds)
+            birds.append(bird)
         return birds
 
     def get_text(self):
         """Возвращает текстовый объект с текущим номером популяции птичек."""
         font = pg.font.Font(None, 36)
-        text = f"Population: {self.population}"
+        text = f"Популяция: {self.population}"
         text_surface = font.render(text, True, (255, 255, 255), Game.BACKGROUND)
         return text_surface
 
+    def get_text_surf_height(self):
+        """Возвращает высоту текста с популяциями."""
+        return self.get_text().get_height() + 2 * Game.SURF_INDENT
+
+    def get_game_height(self):
+        """Возвращает высоту поверхности игры."""
+        return self.screen.get_height() - self.get_text_surf_height()
+
     def draw(self):
-        """Занимается отрисовкой объектов."""
+        """Отрисовывает объекты на главный экран."""
         self.screen.fill(Game.BACKGROUND)
-        self.screen.blit(self.get_text(), (10, 10))
-        self.sprites.draw(self.screen)
+        self.screen.blit(self.get_text(), (Game.SURF_INDENT, Game.SURF_INDENT))
+        self.screen.blit(self.game_surf, (0, self.get_text_surf_height()))
+        self.game_surf.fill(Game.BACKGROUND)
+        self.birds.draw(self.game_surf)
+
+        #print(conf.best_brain)
 
     def update(self):
         """Обновляет экран игры."""
         pg.display.update()
-        scr_size = (self.screen.get_width(), self.screen.get_height())
-        self.sprites.update(scr_size)
+        self.game_surf = pg.transform.scale(self.game_surf,
+                                (self.screen.get_width(), self.get_game_height()))
+
+        game_size = (self.game_surf.get_width(), self.game_surf.get_height())
+        self.birds.update(game_size)
 
         # Создание новых популяций птичек
-        if not self.sprites.sprites():
-            self.sprites.add(self.create_objects())
+        if not self.birds.sprites():
+            self.birds.add(self.create_objects())
             self.population += 1
+
+            """
+            for bird in self.birds.sprites():
+                bird_params = bird.neuro_brain.get_params()
+                bird_params["population"] = self.population
+                print(bird_params)
+
+            print(f"Population: {self.population}\n----------------")
+            """
 
     def handle_events(self):
         """Отслеживает нажатия клавиш и кнопок."""

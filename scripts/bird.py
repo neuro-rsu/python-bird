@@ -6,6 +6,8 @@ from random import randint
 import numpy as np
 import pygame as pg
 
+import config
+
 
 def transform(n, start1, stop1, start2, stop2):
     """Вспомогательная функция, преобразующая координаты."""
@@ -18,27 +20,29 @@ class Bird(pg.sprite.Sprite):
 
     Параметры:
     bird_image - изображение птички;
-    coord_y0 - начальная координата y;
-    best_brain - нейросеть для птички.
+    coord_y0 - начальная координата y.
     """
     MIN_SPEED = 10
     MAX_SPEED = 10
+    count = 0
 
-    def __init__(self, bird_image, coord_y0, best_brain):
+    def __init__(self, bird_image, coord_y0, number_of_birds):
         pg.sprite.Sprite.__init__(self)
-        self.image = bird_image
+        self.image_right = bird_image
+        self.image_left = pg.transform.flip(bird_image, True, False)
+        self.image = self.image_right
         self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = 0, coord_y0
+        self.rect.x, self.rect.y = 10, coord_y0
 
         self.speed_x = randint(Bird.MIN_SPEED, Bird.MAX_SPEED)
         self.speed_y = 0 #randint(Bird.MIN_SPEED, Bird.MAX_SPEED)
-        if self.speed_x < 0:
-            self.image = pg.transform.flip(self.image, True, False)
 
-        self.neuro_brain = best_brain.clone()
+        #self.best_brain = best_brain
+        self.neuro_brain = config.best_brain.clone()
+        self.neuro_brain.cost = 0
         self.neuro_brain.mutate()
 
-        self.is_ready = True
+        Bird.count = number_of_birds
 
     def update(self, screen_size):
         """Реализует поведение птички при обновлении экрана.
@@ -46,9 +50,10 @@ class Bird(pg.sprite.Sprite):
         Параметр:
         screen_size - кортеж, содержащий размеры игрового окна.
         """
-
-        if not self.is_ready:
-            return
+        if self.speed_x >= 0:
+            self.image = self.image_right
+        else:
+            self.image = self.image_left
 
         inputs = np.array([[
             transform(self.rect.x, 0, screen_size[0], 0, 1),
@@ -58,9 +63,12 @@ class Bird(pg.sprite.Sprite):
         ]], dtype=np.float32)
 
         result = self.neuro_brain.feed_forward(inputs[0])
+
         if result[1] > result[0]:
             self.speed_x = -self.speed_x
             self.neuro_brain.cost -= 10
+
+        self.neuro_brain.cost += 1
 
         x = self.rect.x + self.speed_x
 
@@ -69,7 +77,7 @@ class Bird(pg.sprite.Sprite):
             self.kill()
             return
 
-        if result[3] > result[2]:
+        """if result[3] > result[2]:
             self.speed_y = -self.speed_y
             self.neuro_brain.cost -= 10
 
@@ -78,7 +86,7 @@ class Bird(pg.sprite.Sprite):
         if ((y + self.rect.height > screen_size[1] and self.speed_y > 0) or
                     (y < 0 and self.speed_y < 0)):
             self.kill()
-            return
+            return"""
 
         if self.neuro_brain.cost < -100:
             self.kill()
@@ -86,3 +94,14 @@ class Bird(pg.sprite.Sprite):
 
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
+
+    def kill(self):
+        """Переопределенный метод, который удаляет спрайт
+        из всех спрайтовых групп.
+        """
+        Bird.count -= 1
+        #print(config.best_brain.cost)
+        if self.neuro_brain.cost > config.best_brain.cost:
+            config.best_brain = self.neuro_brain.clone()
+
+        super().kill()
