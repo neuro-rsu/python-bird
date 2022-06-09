@@ -58,7 +58,7 @@ class NeuralNetwork:
 
         return output
 
-    def mutate(self, mutation_probability=0.05, mutation_amount=5.0): #0.05, 1.0
+    def mutate(self, mutation_probability=0.4, mutation_amount=1.0): #0.05, 1.0
         """Мутирует каждую секцию нейросети.
 
         Параметры: ..."""

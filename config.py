@@ -10,5 +10,5 @@ APP_NAME = "Птица в клетке"
 WIDTH = 1280
 HEIGHT = 720
 BIRD_SIZE = (60, 60)
-NN_TOPOLOGY = (4, 4)
+NN_TOPOLOGY = (1, 2)
 best_brain = NeuralNetwork(NN_TOPOLOGY, False)
