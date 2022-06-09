@@ -25,6 +25,7 @@ class Bird(pg.sprite.Sprite):
     MIN_SPEED = 10
     MAX_SPEED = 10
     count = 0
+    rotation_count = 0
 
     def __init__(self, bird_image, coord_y0, number_of_birds):
         pg.sprite.Sprite.__init__(self)
@@ -33,6 +34,7 @@ class Bird(pg.sprite.Sprite):
         self.image = self.image_right
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 10, coord_y0
+        self.rotation_count = 0
 
         self.speed_x = randint(Bird.MIN_SPEED, Bird.MAX_SPEED)
         self.speed_y = 0 #randint(Bird.MIN_SPEED, Bird.MAX_SPEED)
@@ -55,18 +57,27 @@ class Bird(pg.sprite.Sprite):
         else:
             self.image = self.image_left
 
+        # inputs = np.array([[
+        #     transform(self.rect.x, 0, screen_size[0], 0, 1),
+        #     transform(self.rect.x + self.rect.width, 0, screen_size[0], 0, 1),
+        #     transform(self.rect.y, 0, screen_size[1], 0, 1),
+        #     transform(self.rect.y + self.rect.height, 0, screen_size[1], 0, 1)
+        # ]], dtype=np.float32)
+
         inputs = np.array([[
-            transform(self.rect.x, 0, screen_size[0], 0, 1),
-            transform(self.rect.x + self.rect.width, 0, screen_size[0], 0, 1),
-            transform(self.rect.y, 0, screen_size[1], 0, 1),
-            transform(self.rect.y + self.rect.height, 0, screen_size[1], 0, 1)
+            transform(screen_size[0] - self.rect.x if self.speed_x > 0 else self.rect.x, 0, screen_size[0], 0, 1)
         ]], dtype=np.float32)
 
         result = self.neuro_brain.feed_forward(inputs[0])
 
+        # if result[1] > result[0]:
+        #     self.speed_x = -self.speed_x
+        #     rotation_count += 1;
+        #     self.neuro_brain.cost -= 10
+
         if result[1] > result[0]:
             self.speed_x = -self.speed_x
-            self.neuro_brain.cost -= 10
+            self.rotation_count += 1
 
         self.neuro_brain.cost += 1
 
@@ -88,7 +99,7 @@ class Bird(pg.sprite.Sprite):
             self.kill()
             return"""
 
-        if self.neuro_brain.cost < -100:
+        if self.rotation_count > 10:
             self.kill()
             return
 
@@ -101,6 +112,7 @@ class Bird(pg.sprite.Sprite):
         """
         Bird.count -= 1
         #print(config.best_brain.cost)
+
         if self.neuro_brain.cost > config.best_brain.cost:
             config.best_brain = self.neuro_brain.clone()
 

@@ -4,6 +4,7 @@ import os
 
 import pygame as pg
 
+# import time
 import config as conf
 from scripts.bird import Bird
 
@@ -13,7 +14,7 @@ class Game:
     FPS = 60
     BACKGROUND = (0, 178, 255)
     SURF_INDENT = 10
-
+    count = 1;
     def __init__(self):
         # Установка параметров окна
         pg.init()
@@ -118,6 +119,11 @@ class Game:
             self.handle_events()
             self.draw()
             self.update()
+
+            # if self.count == 0:
+            #     time.sleep(3)
+            # if self.count >= 0:
+            #     self.count-= 1
             self.clock.tick(Game.FPS)
 
         pg.quit()
