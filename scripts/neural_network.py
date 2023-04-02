@@ -4,11 +4,12 @@ import numpy as np
 
 
 class NeuralNetwork:
-    """Создает нейросеть...
+    """Создает нейросеть
 
     Параметры:
     topology - топология нейросети;
-    clone - ..."""
+    clone - логический параметр, отмечающий необходимость клонирования нейросети.
+    """
 
     def __init__(self, topology, clone):
         self.cost = 0
@@ -87,7 +88,6 @@ class NeuralSection:
         elif output_count == 0:
             raise ValueError("You cannot create a Neural Layer with no output neurons.")
 
-        # Эта часть с весами немного переписана
         self.weights = np.empty((input_count + 1, output_count))
 
         for i, _ in enumerate(self.weights):
