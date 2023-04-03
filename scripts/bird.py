@@ -24,16 +24,20 @@ class Bird(pg.sprite.Sprite):
     """
     MIN_SPEED = 10
     MAX_SPEED = 10
+    SIZE = (60, 60)
     count = 0
-    rotation_count = 0
 
-    def __init__(self, bird_image, coord_y0, number_of_birds):
+    # Поля с генетическими параметрами
+    mutation = 0.4
+    rotations = 10
+
+    def __init__(self, bird_image, coord_y0):
         pg.sprite.Sprite.__init__(self)
         self.image_right = bird_image
         self.image_left = pg.transform.flip(bird_image, True, False)
         self.image = self.image_right
         self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = 10, coord_y0
+        self.rect.x, self.rect.y = 0, coord_y0
         self.rotation_count = 0
 
         self.speed_x = randint(Bird.MIN_SPEED, Bird.MAX_SPEED)
@@ -42,9 +46,9 @@ class Bird(pg.sprite.Sprite):
         #self.best_brain = best_brain
         self.neuro_brain = config.best_brain.clone()
         self.neuro_brain.cost = 0
-        self.neuro_brain.mutate()
+        self.neuro_brain.mutate(Bird.mutation)
 
-        Bird.count = number_of_birds
+        Bird.count += 1
 
     def update(self, screen_size):
         """Реализует поведение птички при обновлении экрана.
@@ -99,7 +103,7 @@ class Bird(pg.sprite.Sprite):
             self.kill()
             return"""
 
-        if self.rotation_count > 10:
+        if self.rotation_count > Bird.rotations:
             self.kill()
             return
 

@@ -7,6 +7,7 @@ import pygame as pg
 # import time
 import config as conf
 from scripts.bird import Bird
+from scripts.neural_network import NeuralNetwork
 
 
 class Game:
@@ -14,8 +15,9 @@ class Game:
     FPS = 60
     BACKGROUND = (0, 178, 255)
     SURF_INDENT = 10
-    count = 1;
-    def __init__(self):
+    population_count = 10
+
+    def __init__(self, game_data):
         # Установка параметров окна
         pg.init()
         self.screen = pg.display.set_mode((conf.WIDTH, conf.HEIGHT), pg.RESIZABLE)
@@ -28,11 +30,13 @@ class Game:
         self.clock = pg.time.Clock()
 
         # Инициализация игровых объектов
+        self.win_score = 1000
         self.population = 1
 
         self.game_surf = pg.Surface((conf.WIDTH,
                                 conf.HEIGHT - self.get_text_surf_height()))
 
+        Game.set_game_data(game_data)
         self.birds = pg.sprite.Group()
         birds = self.create_objects()
         self.birds.add(birds)
@@ -42,8 +46,15 @@ class Game:
         """Загружает и возвращает иконку игрового окна."""
         img_folder = os.path.join(conf.PROJECT_FOLDER, "images")
         bird_img = pg.image.load(os.path.join(img_folder, "bird.png")).convert_alpha()
-        bird_img = pg.transform.scale(bird_img, conf.BIRD_SIZE)
+        bird_img = pg.transform.scale(bird_img, Bird.SIZE)
         return bird_img
+
+    @staticmethod
+    def set_game_data(data):
+        # conf.repeat_count = data[""]
+        Bird.mutation = data["mutation"]
+        Bird.rotations = data["rotations"]
+        Game.population_count = data["population"]
 
     def create_objects(self):
         """Создаёт экземпляры класса Bird
@@ -51,12 +62,14 @@ class Game:
         """
         birds = []
 
-        number_of_birds = int(self.game_surf.get_height() / conf.BIRD_SIZE[0])
-        for i in range(number_of_birds):
+        # number_of_birds = int(self.game_surf.get_height() / Bird.SIZE[0])
+        # for i in range(number_of_birds):
+        for i in range(10):
+            for _ in range(int(Game.population_count / 10)):
             # Картинка с птичкой используется как иконка игры и как спрайт,
             # поэтому загружается в этом классе
-            bird = Bird(self.icon, conf.BIRD_SIZE[0] * i, number_of_birds)
-            birds.append(bird)
+                bird = Bird(self.icon, Bird.SIZE[0] * i)
+                birds.append(bird)
         return birds
 
     def get_text(self):
@@ -91,6 +104,7 @@ class Game:
                                 (self.screen.get_width(), self.get_game_height()))
 
         game_size = (self.game_surf.get_width(), self.game_surf.get_height())
+        self.win_score = round(1000 * game_size[0] / conf.WIDTH * Bird.rotations / 10)
         self.birds.update(game_size)
 
         # Создание новых популяций птичек
@@ -98,26 +112,34 @@ class Game:
             self.birds.add(self.create_objects())
             self.population += 1
 
-            """
-            for bird in self.birds.sprites():
-                bird_params = bird.neuro_brain.get_params()
-                bird_params["population"] = self.population
-                print(bird_params)
-
-            print(f"Population: {self.population}\n----------------")
-            """
+        # Для теста
+        # if conf.best_brain.cost > 500:
+        #     Bird.mutation = 0.1
 
     def handle_events(self):
         """Отслеживает нажатия клавиш и кнопок."""
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.is_running = False
+        
+            # Нажатие клавиш клавиатуры
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    print(Bird.count)
+                    # print(conf.best_brain.get_params())
 
     def run(self):
         """Запускает и контролирует игровой процесс."""
         while self.is_running:
             self.handle_events()
             self.draw()
+
+            # Тест
+            if conf.best_brain.cost > self.win_score:
+                #print(conf.best_brain.get_params())
+                conf.best_brain = NeuralNetwork(conf.NN_TOPOLOGY, False)
+                return
+
             self.update()
 
             # if self.count == 0:
