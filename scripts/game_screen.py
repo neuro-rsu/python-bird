@@ -20,7 +20,7 @@ class Game:
     def __init__(self, game_data):
         # Установка параметров окна
         pg.init()
-        self.screen = pg.display.set_mode((conf.WIDTH, conf.HEIGHT), pg.RESIZABLE)
+        self.screen = pg.display.set_mode((conf.WIDTH, conf.HEIGHT))
         pg.display.set_caption(conf.APP_NAME)
         self.icon = self.load_icon()
         pg.display.set_icon(self.icon)
@@ -62,7 +62,7 @@ class Game:
         """
         birds = []
 
-        # number_of_birds = int(self.game_surf.get_height() / Bird.SIZE[0])
+        # number_of_birds = int(conf.HEIGHT / Bird.SIZE[0])
         # for i in range(number_of_birds):
         for i in range(10):
             for _ in range(int(Game.population_count / 10)):
@@ -100,12 +100,8 @@ class Game:
     def update(self):
         """Обновляет экран игры."""
         pg.display.update()
-        self.game_surf = pg.transform.scale(self.game_surf,
-                                (self.screen.get_width(), self.get_game_height()))
-
-        game_size = (self.game_surf.get_width(), self.game_surf.get_height())
-        self.win_score = round(1000 * game_size[0] / conf.WIDTH * Bird.rotations / 10)
-        self.birds.update(game_size)
+        self.win_score = round(1000 * conf.WIDTH / 1280 * Bird.rotations / 10)
+        self.birds.update()
 
         # Создание новых популяций птичек
         if not self.birds.sprites():

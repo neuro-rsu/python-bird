@@ -50,26 +50,22 @@ class Bird(pg.sprite.Sprite):
 
         Bird.count += 1
 
-    def update(self, screen_size):
-        """Реализует поведение птички при обновлении экрана.
-
-        Параметр:
-        screen_size - кортеж, содержащий размеры игрового окна.
-        """
+    def update(self):
+        """Реализует поведение птички при обновлении экрана."""
         if self.speed_x >= 0:
             self.image = self.image_right
         else:
             self.image = self.image_left
 
         # inputs = np.array([[
-        #     transform(self.rect.x, 0, screen_size[0], 0, 1),
-        #     transform(self.rect.x + self.rect.width, 0, screen_size[0], 0, 1),
-        #     transform(self.rect.y, 0, screen_size[1], 0, 1),
-        #     transform(self.rect.y + self.rect.height, 0, screen_size[1], 0, 1)
+        #     transform(self.rect.x, 0, config.WIDTH, 0, 1),
+        #     transform(self.rect.x + self.rect.width, 0, config.WIDTH, 0, 1),
+        #     transform(self.rect.y, 0, config.HEIGHT, 0, 1),
+        #     transform(self.rect.y + self.rect.height, 0, config.HEIGHT, 0, 1)
         # ]], dtype=np.float32)
 
         inputs = np.array([[
-            transform(screen_size[0] - self.rect.x if self.speed_x > 0 else self.rect.x, 0, screen_size[0], 0, 1)
+            transform(config.WIDTH - self.rect.x if self.speed_x > 0 else self.rect.x, 0, config.WIDTH, 0, 1)
         ]], dtype=np.float32)
 
         result = self.neuro_brain.feed_forward(inputs[0])
@@ -87,7 +83,7 @@ class Bird(pg.sprite.Sprite):
 
         x = self.rect.x + self.speed_x
 
-        if ((x + self.rect.width > screen_size[0] and self.speed_x > 0) or
+        if ((x + self.rect.width > config.WIDTH and self.speed_x > 0) or
                     (x < 0 and self.speed_x < 0)):
             self.kill()
             return
@@ -98,7 +94,7 @@ class Bird(pg.sprite.Sprite):
 
         y = self.rect.y + self.speed_y
 
-        if ((y + self.rect.height > screen_size[1] and self.speed_y > 0) or
+        if ((y + self.rect.height > config.HEIGHT and self.speed_y > 0) or
                     (y < 0 and self.speed_y < 0)):
             self.kill()
             return"""
