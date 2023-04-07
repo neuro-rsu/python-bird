@@ -1,13 +1,43 @@
 """Модуль описывает игровой экран и логику игры."""
 
 import os
+import time
 
 import pygame as pg
 
-# import time
 import config as conf
 from scripts.bird import Bird
 from scripts.neural_network import NeuralNetwork
+
+
+class GameManager:
+    """Управляет данными data, передаваемыми в форму,
+    и создает необходимое количество игр."""
+
+    def __init__(self, data):
+        self.data = data
+        self.times = []
+
+    def set_bird_data(self):
+        """Устанавливает параметры генетического алгоритма для класса Bird."""
+        Bird.mutation = self.data["mutation"]
+        Bird.rotations = self.data["rotations"]
+        Bird.population_count = self.data["population"]
+
+    def create_games(self):
+        """Создает заданное количество игр."""
+        for _ in range(self.data["repeat"]):
+            start = time.time()
+            game = Game()
+            game.run()
+            finish = time.time()
+            self.times.append(finish - start)
+
+    def call_end_form(self):
+        """Вызывает форму после завершения обучения всех игр."""
+        # Вызвать конечную форму
+        # Кроме того время нужно передавать дальше для хранения в БД или в HD
+        print(self.times, len(self.times))
 
 
 class Game:
@@ -15,9 +45,8 @@ class Game:
     FPS = 60
     BACKGROUND = (0, 178, 255)
     SURF_INDENT = 10
-    population_count = 10
 
-    def __init__(self, game_data):
+    def __init__(self):
         # Установка параметров окна
         pg.init()
         self.screen = pg.display.set_mode((conf.WIDTH, conf.HEIGHT))
@@ -36,7 +65,6 @@ class Game:
         self.game_surf = pg.Surface((conf.WIDTH,
                                 conf.HEIGHT - self.get_text_surf_height()))
 
-        Game.set_game_data(game_data)
         self.birds = pg.sprite.Group()
         birds = self.create_objects()
         self.birds.add(birds)
@@ -49,13 +77,6 @@ class Game:
         bird_img = pg.transform.scale(bird_img, Bird.SIZE)
         return bird_img
 
-    @staticmethod
-    def set_game_data(data):
-        # conf.repeat_count = data[""]
-        Bird.mutation = data["mutation"]
-        Bird.rotations = data["rotations"]
-        Game.population_count = data["population"]
-
     def create_objects(self):
         """Создаёт экземпляры класса Bird
         и возвращает их в качестве списка.
@@ -65,7 +86,7 @@ class Game:
         # number_of_birds = int(conf.HEIGHT / Bird.SIZE[0])
         # for i in range(number_of_birds):
         for i in range(10):
-            for _ in range(int(Game.population_count / 10)):
+            for _ in range(int(Bird.population_count / 10)):
             # Картинка с птичкой используется как иконка игры и как спрайт,
             # поэтому загружается в этом классе
                 bird = Bird(self.icon, Bird.SIZE[0] * i)

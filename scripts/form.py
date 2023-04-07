@@ -1,7 +1,7 @@
 import tkinter as tk
 
 import config as conf
-from scripts.game_screen import Game
+from scripts.game_screen import GameManager
 
 
 class Frame(tk.Frame):
@@ -49,7 +49,7 @@ class Form(tk.Tk):
         self.frame.pack(side="top", padx=10)
 
         # Кнопка запуска и ее позиционирование
-        self.button = tk.Button(self, text="Запустить", command=self.launch)
+        self.button = tk.Button(self, text="Запустить", command=self.launch_game)
         self.button.pack(pady=10)
 
         # Размещение окна в центре экрана
@@ -73,11 +73,10 @@ class Form(tk.Tk):
             "rotations": int(self.frame.rotations.get())
         }
 
-    def launch(self):
+    def launch_game(self):
         """Запускает игру с передачей необходимых параметров."""
-        self.withdraw()
-        for _ in range(int(self.frame.repeat.get())):
-            game = Game(self.transform_data_to_dict())
-            game.run()
-
+        manager = GameManager(self.transform_data_to_dict())
         self.destroy()
+        manager.set_bird_data()
+        manager.create_games()
+        manager.call_end_form()

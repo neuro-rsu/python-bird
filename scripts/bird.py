@@ -30,6 +30,7 @@ class Bird(pg.sprite.Sprite):
     # Поля с генетическими параметрами
     mutation = 0.4
     rotations = 10
+    population_count = 10
 
     def __init__(self, bird_image, coord_y0):
         pg.sprite.Sprite.__init__(self)
