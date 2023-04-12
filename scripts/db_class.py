@@ -1,6 +1,8 @@
 """Модуль содержит класс для работы с БД в CouchDB."""
 
-from couchdb3 import Server
+from re import sub
+
+import couchdb3
 
 
 class CouchDB:
@@ -14,8 +16,9 @@ class CouchDB:
     db_name - имя БД.
     """
 
-    def __init__(self, url, username, password, db_name):
-        self.__server = Server(f"http://{username}:{password}@{url}")
+    def __init__(self, url: str, username, password, db_name):
+        url = sub(r"https?://", '', url)
+        self.__server = couchdb3.Server(f"http://{username}:{password}@{url}")
 
         if db_name in self.__server:
             self.__db = self.__server.get(db_name)
@@ -29,13 +32,16 @@ class CouchDB:
 
     def delete(self):
         """Удаляет открытую БД."""
-        return self.__server.delete(self.__db.name)
+        if self.__server.delete(self.__db.name):
+            return "БД успешно удалена"
+        return "Ошибка при удалении БД"
 
     def create_doc(self, doc_name, data):
         """Создает новый документ с именем doc_name и данными data."""
         if doc_name not in self.__db:
             data["_id"] = doc_name
-            return self.__db.save(data)
+            self.__db.save(data)
+            return "Документ успешно создан"
         return "Документ уже существует"
 
     def get_doc(self, doc_name):
@@ -53,11 +59,13 @@ class CouchDB:
             data["_id"] = doc_name
             doc = self.__db.get(doc_name)
             doc.update(data)
-            return self.__db.save(doc)
+            self.__db.save(doc)
+            return "Документ успешно обновлен"
         return "Документ не найден"
 
     def delete_doc(self, doc_name):
         """Удаляет документ с именем doc_name."""
         if doc_name in self.__db:
-            return self.__db.delete(docid=doc_name, rev=self.__db.rev(doc_name))
+            self.__db.delete(docid=doc_name, rev=self.__db.rev(doc_name))
+            return "Документ успешно удален"
         return "Документ не найден"

@@ -49,20 +49,20 @@ class Form(tk.Tk):
         self.frame.pack(side="top", padx=10)
 
         # Кнопка запуска и ее позиционирование
-        self.button = tk.Button(self, text="Запустить", command=self.launch_game)
-        self.button.pack(pady=10)
+        tk.Button(self, text="Запустить", command=self.launch_game).pack(pady=10)
 
         # Размещение окна в центре экрана
         self.update()
-        self.geometry(self.set_window_coord())
+        self.geometry(self.get_window_geometry())
+        self.resizable(False, False)
 
-    def set_window_coord(self):
-        """Возвращает координаты центра экрана для окна."""
+    def get_window_geometry(self):
+        """Возвращает геометрию окна."""
         width, height = self.winfo_width(), self.winfo_height()
         x = round((self.winfo_screenwidth() - width) / 2)
         y = round((self.winfo_screenheight() - height) / 2)
-        coord = f"{width}x{height}+{x}+{y}"
-        return coord
+        geometry = f"{width}x{height}+{x}+{y}"
+        return geometry
 
     def transform_data_to_dict(self):
         """Возвращает словарь с данными, введенными в форму."""
@@ -79,4 +79,4 @@ class Form(tk.Tk):
         self.destroy()
         manager.set_bird_data()
         manager.create_games()
-        manager.call_end_form()
+        manager.call_save_form()

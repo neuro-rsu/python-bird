@@ -6,6 +6,7 @@ import time
 import pygame as pg
 
 import config as conf
+from scripts.save_form import DataSaveForm
 from scripts.bird import Bird
 from scripts.neural_network import NeuralNetwork
 
@@ -27,17 +28,24 @@ class GameManager:
     def create_games(self):
         """Создает заданное количество игр."""
         for _ in range(self.data["repeat"]):
+            conf.best_brain = NeuralNetwork(conf.NN_TOPOLOGY, False)
             start = time.time()
             game = Game()
             game.run()
             finish = time.time()
             self.times.append(finish - start)
+        pg.quit()
 
-    def call_end_form(self):
-        """Вызывает форму после завершения обучения всех игр."""
-        # Вызвать конечную форму
-        # Кроме того время нужно передавать дальше для хранения в БД или в HD
-        print(self.times, len(self.times))
+    def get_result_data(self):
+        """Возвращает результаты обучения."""
+        res = {"best_weights": conf.best_brain.get_params()}
+        res["times"] = self.times
+        return res
+
+    def call_save_form(self):
+        """Вызывает форму для сохранения результатов обучения."""
+        save_form = DataSaveForm(self.get_result_data())
+        save_form.mainloop()
 
 
 class Game:
@@ -138,12 +146,12 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.is_running = False
-        
+
             # Нажатие клавиш клавиатуры
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    print(Bird.count)
-                    # print(conf.best_brain.get_params())
+            # if event.type == pg.KEYDOWN:
+            #     if event.key == pg.K_SPACE:
+            #         print(Bird.count)
+            #         # print(conf.best_brain.get_params())
 
     def run(self):
         """Запускает и контролирует игровой процесс."""
@@ -154,7 +162,6 @@ class Game:
             # Тест
             if conf.best_brain.cost > self.win_score:
                 #print(conf.best_brain.get_params())
-                conf.best_brain = NeuralNetwork(conf.NN_TOPOLOGY, False)
                 return
 
             self.update()

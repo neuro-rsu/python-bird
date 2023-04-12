@@ -70,18 +70,24 @@ class NeuralNetwork:
         """Возвращает словарь с параметрами нейросети."""
         nn_params = self.__dict__
 
+        # Преобразование весов из массива в список
         for i, section in enumerate(self.sections, 1):
-            nn_params[f"weights{i}"] = vars(section)["weights"]
+            nn_params[f"weights{i}"] = vars(section)["weights"].tolist()
 
+        del nn_params["sections"]
         return nn_params
 
-    def set_weights(self, nn_params):
-        """Устанавливает значения весов нейросети из словаря nn_params."""
+    def set_params(self, nn_params):
+        """Устанавливает параметры нейросети из словаря nn_params."""
+        self.cost = nn_params["cost"]
+        self.the_topology = nn_params["the_topology"]
+        # Преобразование весов в массив
         for i, section in enumerate(self.sections, 1):
-            section.weights = nn_params[f"weights{i}"]
+            section.weights = np.array(nn_params[f"weights{i}"])
 
 
 class NeuralSection:
+
     def __init__(self, input_count=0, output_count=0):
         if input_count == 0:
             return
