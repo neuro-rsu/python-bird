@@ -6,9 +6,9 @@ import time
 import pygame as pg
 
 import config as conf
-from scripts.save_form import DataSaveForm
-from scripts.bird import Bird
-from scripts.neural_network import NeuralNetwork
+from scripts.gui.save_form import DataSaveForm
+from scripts.game.bird import Bird
+from scripts.nn.neural_network import NeuralNetwork
 
 
 class GameManager:

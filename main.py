@@ -1,6 +1,6 @@
 """Главный модуль игры."""
 
-from scripts.form import Form
+from scripts.gui.initial_form import Form
 
 
 if __name__ == "__main__":

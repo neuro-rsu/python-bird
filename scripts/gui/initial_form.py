@@ -1,7 +1,7 @@
 import tkinter as tk
 
 import config as conf
-from scripts.game_screen import GameManager
+from scripts.game.game_screen import GameManager
 
 
 class Frame(tk.Frame):

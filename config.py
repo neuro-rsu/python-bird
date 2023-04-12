@@ -2,7 +2,7 @@
 
 import os
 
-from scripts.neural_network import NeuralNetwork
+from scripts.nn.neural_network import NeuralNetwork
 
 
 PROJECT_FOLDER = os.path.dirname(__file__)
