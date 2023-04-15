@@ -94,7 +94,7 @@ class Game:
         # number_of_birds = int(conf.HEIGHT / Bird.SIZE[0])
         # for i in range(number_of_birds):
         for i in range(10):
-            for _ in range(int(Bird.population_count / 10)):
+            for _ in range(round(Bird.population_count / 10)):
             # Картинка с птичкой используется как иконка игры и как спрайт,
             # поэтому загружается в этом классе
                 bird = Bird(self.icon, Bird.SIZE[0] * i)
