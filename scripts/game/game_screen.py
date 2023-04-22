@@ -6,7 +6,7 @@ import time
 import pygame as pg
 
 import config as conf
-from scripts.gui.save_form import DataSaveForm
+from scripts.gui.db_forms import DataSaveForm
 from scripts.game.bird import Bird
 from scripts.nn.neural_network import NeuralNetwork
 

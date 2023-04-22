@@ -51,7 +51,7 @@ class CouchDB:
             del doc["_id"]
             del doc["_rev"]
             return doc
-        return "Документ не найден"
+        return None
 
     def update_doc(self, doc_name, data):
         """Обновляет информацию data документе doc_name."""
