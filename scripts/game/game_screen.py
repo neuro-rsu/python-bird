@@ -1,6 +1,5 @@
 """Модуль описывает игровой экран и логику игры."""
 
-import os
 import time
 
 import pygame as pg
@@ -19,18 +18,19 @@ class GameManager:
         self.data = data
         self.times = []
 
-    def set_bird_data(self):
+    def set_game_data(self):
         """Устанавливает параметры генетического алгоритма для класса Bird."""
         Bird.mutation = self.data["mutation"]
         Bird.rotations = self.data["rotations"]
-        Bird.population_count = self.data["population"]
+        Bird.multiplier = self.data["multiplier"]
+        conf.best_score = round(1000 * conf.WIDTH / 1280 * Bird.rotations / 10)
 
     def create_games(self):
         """Создает заданное количество игр."""
-        for _ in range(self.data["repeat"]):
+        for i in range(1, self.data["repeat"] + 1):
             conf.best_brain = NeuralNetwork(conf.NN_TOPOLOGY, False)
             start = time.time()
-            game = Game()
+            game = Game(i)
             game.run()
             finish = time.time()
             self.times.append(finish - start)
@@ -49,12 +49,15 @@ class GameManager:
 
 
 class Game:
-    """Описывает игровой экран и процесс игры."""
+    """Описывает игровой экран и процесс игры.
+
+    Параметр stage - этап обучения.
+    """
     FPS = 60
     BACKGROUND = (0, 178, 255)
     SURF_INDENT = 10
 
-    def __init__(self):
+    def __init__(self, stage):
         # Установка параметров окна
         pg.init()
         self.screen = pg.display.set_mode((conf.WIDTH, conf.HEIGHT))
@@ -65,23 +68,22 @@ class Game:
         # Состояние игрового процесса
         self.is_running = True
         self.clock = pg.time.Clock()
+        self.stage = stage
 
         # Инициализация игровых объектов
-        self.win_score = 1000
         self.population = 1
+        self.birds = pg.sprite.Group()
 
         self.game_surf = pg.Surface((conf.WIDTH,
                                 conf.HEIGHT - self.get_text_surf_height()))
 
-        self.birds = pg.sprite.Group()
         birds = self.create_objects()
         self.birds.add(birds)
 
     @staticmethod
     def load_icon():
         """Загружает и возвращает иконку игрового окна."""
-        img_folder = os.path.join(conf.PROJECT_FOLDER, "images")
-        bird_img = pg.image.load(os.path.join(img_folder, "bird.png")).convert_alpha()
+        bird_img = pg.image.load(conf.ICONS["bird"]).convert_alpha()
         bird_img = pg.transform.scale(bird_img, Bird.SIZE)
         return bird_img
 
@@ -94,7 +96,7 @@ class Game:
         # number_of_birds = int(conf.HEIGHT / Bird.SIZE[0])
         # for i in range(number_of_birds):
         for i in range(10):
-            for _ in range(round(Bird.population_count / 10)):
+            for _ in range(Bird.multiplier):
             # Картинка с птичкой используется как иконка игры и как спрайт,
             # поэтому загружается в этом классе
                 bird = Bird(self.icon, Bird.SIZE[0] * i)
@@ -104,7 +106,8 @@ class Game:
     def get_text(self):
         """Возвращает текстовый объект с текущим номером популяции птичек."""
         font = pg.font.Font(None, 36)
-        text = f"Популяция: {self.population}"
+        text = f"Этап: {self.stage} | Популяция: {self.population} | "
+        text += f"Птиц: {len(self.birds.sprites())}"
         text_surface = font.render(text, True, (255, 255, 255), Game.BACKGROUND)
         return text_surface
 
@@ -129,7 +132,6 @@ class Game:
     def update(self):
         """Обновляет экран игры."""
         pg.display.update()
-        self.win_score = round(1000 * conf.WIDTH / 1280 * Bird.rotations / 10)
         self.birds.update()
 
         # Создание новых популяций птичек
@@ -150,7 +152,6 @@ class Game:
             # Нажатие клавиш клавиатуры
             # if event.type == pg.KEYDOWN:
             #     if event.key == pg.K_SPACE:
-            #         print(Bird.count)
             #         # print(conf.best_brain.get_params())
 
     def run(self):
@@ -160,7 +161,7 @@ class Game:
             self.draw()
 
             # Тест
-            if conf.best_brain.cost > self.win_score:
+            if conf.best_brain.cost > conf.best_score:
                 #print(conf.best_brain.get_params())
                 return
 

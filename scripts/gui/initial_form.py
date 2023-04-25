@@ -3,31 +3,34 @@
 import tkinter as tk
 from tkinter.messagebox import askyesno
 
-from scripts.gui.game_form import Form
-from scripts.gui import ds_app
 import config as conf
+from scripts.gui import ds_app
+from scripts.gui.base_form import BaseForm
+from scripts.gui.game_form import Form
 
 
-class MainScreen(tk.Tk):
+class MainScreen(BaseForm):
     """Описывает главный экран."""
 
     def __init__(self):
         """Инициализирует основные элементы окна."""
         super().__init__()
-        self.title(conf.APP_NAME)
         self.create_elements()
+        self.set_window_params(conf.APP_NAME, conf.ICONS["bird"], False)
 
     def create_elements(self):
-        """Создает элементы главного окна приложения."""
+        self.image = tk.PhotoImage(file=conf.ICONS["bird"])
+
         elements = [
             tk.Label(self, text=conf.APP_NAME, fg="blue"),
-            tk.Button(self, text="Запустить игру", command=self.launch_game),
-            tk.Button(self, text="Анализ данных", command=self.launch_stat_app),
-            tk.Button(self, text="Выйти", command=self.exit)
+            tk.Label(self, image=self.image),
+            tk.Button(self, text="Запустить игру", bd=0, command=self.launch_game),
+            tk.Button(self, text="Анализ данных", bd=0, command=self.launch_stat_app),
+            tk.Button(self, text="Выйти", bd=0, command=self.exit)
         ]
 
         for element in elements:
-            element.pack(side=tk.TOP, fill=tk.BOTH)
+            element.pack(side=tk.TOP, fill=tk.BOTH, padx=100)
 
     def launch_game(self):
         """Запускает форму для передачи параметров игры"""

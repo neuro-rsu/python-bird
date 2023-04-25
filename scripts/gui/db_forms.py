@@ -3,15 +3,19 @@
 import tkinter as tk
 from tkinter.messagebox import askyesno, showerror, showinfo
 
+import config as conf
 from scripts.db_class import CouchDB
+from scripts.gui.base_form import BaseForm
 
 
-class DataForm(tk.Tk):
+class BaseDataForm(BaseForm):
     """Генерирует базовую форму для подключения к БД."""
 
     def __init__(self):
         super().__init__()
-        # Элементы формы
+        self.create_elements()
+
+    def create_elements(self):
         tk.Label(self, text="Сервер БД CouchDB").pack(pady=10)
         self.url = tk.Entry(self)
         self.url.pack(padx=50)
@@ -25,29 +29,15 @@ class DataForm(tk.Tk):
         self.doc_name = tk.Entry(self)
         self.doc_name.pack()
 
-    def set_window_params(self):
-        """Устанавливает начальные параметры окна."""
-        self.update()
-        self.geometry(self.set_window_coord())
-        self.resizable(False, False)
 
-    def set_window_coord(self):
-        """Возвращает координаты центра экрана для окна."""
-        width, height = self.winfo_width(), self.winfo_height()
-        x = round((self.winfo_screenwidth() - width) / 2)
-        y = round((self.winfo_screenheight() - height) / 2)
-        coord = f"{width}x{height}+{x}+{y}"
-        return coord
-
-
-class DataLoadForm(DataForm):
+class DataLoadForm(BaseDataForm):
     """Создает форму для получения данных из БД."""
 
     def __init__(self):
         super().__init__()
         self.__return_data = None
         tk.Button(self, text="Загрузить", command=self.get_from_db).pack(pady=10)
-        self.set_window_params()
+        self.set_window_params("БД", conf.ICONS["db"], False)
 
     @property
     def return_data(self):
@@ -58,25 +48,25 @@ class DataLoadForm(DataForm):
         """Загружает данные из БД."""
         try:
             db = CouchDB(self.url.get(), self.user.get(), self._password.get(), "bird-school")
-            self._password.insert(0, '')
             result = db.get_doc(self.doc_name.get())
             if result:
                 self.__return_data = result
                 self.destroy()
             else:
+                self._password.delete(0, tk.END)
                 showinfo("Выполнение", "Документ не найден")
         except Exception as _:
             showerror("Выполнение", "Ошибка при работе с БД")
 
 
-class DataSaveForm(DataForm):
+class DataSaveForm(BaseDataForm):
     """Создает форму для сохранения данных в БД."""
 
     def __init__(self, data):
         super().__init__()
         self.data = data
         tk.Button(self, text="Сохранить", command=self.save_to_db).pack(pady=10)
-        self.set_window_params()
+        self.set_window_params("БД", conf.ICONS["db"], False)
         self.create_save_dialog()
 
     def create_save_dialog(self):
@@ -91,7 +81,8 @@ class DataSaveForm(DataForm):
         """Записывает данные в БД."""
         try:
             db = CouchDB(self.url.get(), self.user.get(), self._password.get(), "bird-school")
-            self._password.insert(0, '')
             showinfo("Выполнение", db.create_doc(self.doc_name.get(), self.data))
         except Exception as _:
             showerror("Выполнение", "Ошибка при работе с БД")
+        finally:
+            self._password.delete(0, tk.END)

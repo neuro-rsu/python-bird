@@ -1,9 +1,10 @@
 """Модуль содержит элементы приложения, обрабатывающего данные."""
 
 import tkinter as tk
-from tkinter.messagebox import showinfo
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+import config as conf
+from scripts.gui.base_form import BaseForm
 from scripts.gui.db_forms import DataLoadForm
 from scripts.stat.output_chart import OutputChart
 from scripts.stat.data_analysis import DataAnalyst
@@ -26,23 +27,29 @@ def main():
     analyst = DataAnalyst(data)
 
     # Вывод результата
-    data_form = DataForms(
-        chart.create_chart(x, y1, y2), analyst.create_hist(), analyst.get_describe_stat()
+    data_form = StatApp(
+        chart.create_chart(x, y1, y2), analyst.create_hist(),
+        analyst.get_describe_stat().to_string()
     )
     data_form.mainloop()
 
 
-class DataForms(tk.Tk):
+class StatApp(BaseForm):
     """Генерирует окно приложения для обработки данных."""
 
     def __init__(self, chart1, chart2, describe_stat):
         super().__init__()
         self.stat = describe_stat
+        self.chart1 = chart1
+        self.chart2 = chart2
+        self.create_elements()
+        self.set_window_params("Статистика", conf.ICONS["analysis"], True)
 
+    def create_elements(self):
         # Создание Tk Canvas для каждого из графиков
-        canvas1 = FigureCanvasTkAgg(chart1, master=self)
+        canvas1 = FigureCanvasTkAgg(self.chart1, master=self)
         canvas1.draw()
-        canvas2 = FigureCanvasTkAgg(chart2, master=self)
+        canvas2 = FigureCanvasTkAgg(self.chart2, master=self)
         canvas2.draw()
 
         # Добавляет Canvas в окно Tk
@@ -60,11 +67,15 @@ class DataForms(tk.Tk):
 
 
 class StatInfo(tk.Toplevel):
-    """Класс для отображения статистики обучения."""
+    """Класс для отображения описательной статистики"""
 
     def __init__(self, parent, data):
         super().__init__(parent)
+        self.title("Описательная статистика")
         self.resizable(False, False)
+        # Позволяет установить иконку в формате PNG
+        icon = tk.PhotoImage(file=conf.ICONS["stat"])
+        self.tk.call('wm', 'iconphoto', self._w, icon)
 
         stat_field = tk.Text(self)
         stat_field.delete(1.0, tk.END)

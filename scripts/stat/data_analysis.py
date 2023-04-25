@@ -35,16 +35,16 @@ class DataAnalyst:
         max_int = sub(r'[\(\)\[\]]', '', max_int) # Удаление скобок
         max_int = list(map(float, max_int.split(',')))
 
-        mode_idx = frequencies[intervals.max()]
+        mode_idx = frequencies.index(max(frequencies))
         # Расчет числителя, дроби моды и самой моды
         num = frequencies[mode_idx] - frequencies[mode_idx - 1]
         fraction = num / (num + (frequencies[mode_idx] - frequencies[mode_idx + 1]))
         mode = max_int[0] + (max_int[1] - max_int[0]) * fraction
 
         # Добавление моды к описательной статистике
-        describe = dict(self.times.describe())
-        describe["mode"] = mode
-        return pd.Series(describe)
+        describe = self.times.describe()
+        describe.at["mode"] = mode
+        return describe
 
     def create_hist(self):
         """Строит гистограмму распределения."""

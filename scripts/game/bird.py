@@ -25,12 +25,11 @@ class Bird(pg.sprite.Sprite):
     MIN_SPEED = 10
     MAX_SPEED = 10
     SIZE = (60, 60)
-    count = 0
 
     # Поля с генетическими параметрами
     mutation = 0.4
     rotations = 10
-    population_count = 10
+    multiplier = 1
 
     def __init__(self, bird_image, coord_y0):
         pg.sprite.Sprite.__init__(self)
@@ -48,8 +47,6 @@ class Bird(pg.sprite.Sprite):
         self.neuro_brain = config.best_brain.clone()
         self.neuro_brain.cost = 0
         self.neuro_brain.mutate(Bird.mutation)
-
-        Bird.count += 1
 
     def update(self):
         """Реализует поведение птички при обновлении экрана."""
@@ -111,7 +108,6 @@ class Bird(pg.sprite.Sprite):
         """Переопределенный метод, который удаляет спрайт
         из всех спрайтовых групп.
         """
-        Bird.count -= 1
         #print(config.best_brain.cost)
 
         if self.neuro_brain.cost > config.best_brain.cost:
