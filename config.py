@@ -1,8 +1,8 @@
-"""Модуль содержит общие параметры."""
+"""Модуль содержит общие параметры игры."""
 
 from os.path import dirname, join
 
-from scripts.nn.neural_network import NeuralNetwork
+from scripts.neural.neural_network import NeuralNetwork
 
 
 APP_NAME = "Птица в клетке"

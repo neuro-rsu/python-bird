@@ -7,7 +7,7 @@ import couchdb3
 
 class CouchDB:
     """Создает новую БД в CouchDB по ее имени
-    или открывает ее, если она расположена на сервере.
+    или открывает ее, если она уже есть на сервере.
 
     Параметры:
     url - адрес сервера БД;
@@ -54,7 +54,7 @@ class CouchDB:
         return None
 
     def update_doc(self, doc_name, data):
-        """Обновляет информацию data документе doc_name."""
+        """Обновляет информацию data в документе doc_name."""
         if doc_name in self.__db:
             data["_id"] = doc_name
             doc = self.__db.get(doc_name)

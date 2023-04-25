@@ -3,7 +3,7 @@
 from matplotlib.figure import Figure
 import numpy as np
 
-from scripts.nn.neural_network import NeuralNetwork
+from scripts.neural.neural_network import NeuralNetwork
 
 
 class OutputChart:

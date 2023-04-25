@@ -4,7 +4,7 @@ import numpy as np
 
 
 class NeuralNetwork:
-    """Создает нейросеть
+    """Создает нейросеть.
 
     Параметры:
     topology - топология нейросети;
@@ -32,6 +32,7 @@ class NeuralNetwork:
             self.sections[i] = NeuralSection(self.the_topology[i], self.the_topology[i + 1])
 
     def clone(self):
+        """Возвращает клон всех слоев нейросети."""
         clone = NeuralNetwork(self.the_topology, True)
         clone.cost = self.cost
 
@@ -42,11 +43,12 @@ class NeuralNetwork:
 
     @property
     def topology(self):
-        """Возвращает топологию в виде массива."""
-        res = np.zeros(len(self.the_topology), dtype=int) # Type to float - ?
+        """Свойство, возвращающее топологию в виде массива."""
+        res = np.zeros(len(self.the_topology), dtype=int)
         return res
 
     def feed_forward(self, input_data):
+        """Возвращает выход, реализуя прямое распространение."""
         if input_data is None:
             raise ValueError("The input array cannot be set to null.")
         elif len(input_data) != self.the_topology[0]:
@@ -59,10 +61,14 @@ class NeuralNetwork:
 
         return output
 
-    def mutate(self, mutation_probability=0.4, mutation_amount=1.0): #0.05, 1.0
-        """Мутирует каждую секцию нейросети.
+    def mutate(self, mutation_probability=0.4, mutation_amount=1.0):
+        """Обучает нейросеть генетическим алгоритмом, используя мутацию
+        весов всех слоев нейросети.
 
-        Параметры: ..."""
+        Параметры:
+        mutation_probability - вероятность мутации;
+        mutation_amount - величина изменения веса.
+        """
         for i, _ in enumerate(self.sections):
             self.sections[i].mutate(mutation_probability, mutation_amount)
 
@@ -87,6 +93,12 @@ class NeuralNetwork:
 
 
 class NeuralSection:
+    """Генерирует слои нейросети.
+
+    Параметры:
+    input_count - количество входов слоя;
+    output_count - количество выходов слоя.
+    """
 
     def __init__(self, input_count=0, output_count=0):
         if input_count == 0:
@@ -94,6 +106,7 @@ class NeuralSection:
         elif output_count == 0:
             raise ValueError("You cannot create a Neural Layer with no output neurons.")
 
+        # +1 для нейрона смещения
         self.weights = np.empty((input_count + 1, output_count))
 
         for i, _ in enumerate(self.weights):
@@ -101,6 +114,7 @@ class NeuralSection:
                 self.weights[i][j] = np.random.random() - 0.5
 
     def clone(self):
+        """Возвращает клон слоя нейросети."""
         clone = NeuralSection()
         clone.weights = np.empty((len(self.weights), len(self.weights[0])))
 
@@ -111,6 +125,10 @@ class NeuralSection:
         return clone
 
     def feed_forward(self, input_data):
+        """Реализует прямое распространение в слое и возвращает выходное значение.
+
+        Параметр input_data - входные данные слоя.
+        """
         if input_data is None:
             raise ValueError("The input array cannot be set to null.")
         elif len(input_data) != len(self.weights) - 1:
@@ -120,7 +138,7 @@ class NeuralSection:
 
         for i, _ in enumerate(self.weights):
             for j in range(len(self.weights[i])):
-                if i == len(self.weights) - 1:
+                if i == len(self.weights) - 1: # Учитывается нейрон смещения
                     output[j] += self.weights[i][j]
                 else:
                     output[j] += self.weights[i][j] * input_data[i]
@@ -131,6 +149,13 @@ class NeuralSection:
         return output
 
     def mutate(self, mutation_probability, mutation_amount):
+        """Реализует обучение нейросети с помощью генетического алгоритма,
+        используя оператор мутации.
+        
+        Параметры:
+        mutation_probability - вероятность мутации;
+        mutation_amount - величина изменения веса.
+        """
         for i, _ in enumerate(self.weights):
             for j, _ in enumerate(self.weights[i]):
                 if np.random.random() < mutation_probability:
@@ -138,6 +163,7 @@ class NeuralSection:
 
 
 def ReLU(x):
+    """Функция ReLU, используемая для активации нейрона."""
     if x >= 0:
         return x
     else:

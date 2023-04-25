@@ -1,3 +1,5 @@
+"""Модуль с формой для задания параметров игры."""
+
 import tkinter as tk
 
 import config as conf

@@ -1,10 +1,10 @@
-"""Модуль содержит форму для сохранения данных."""
+"""Модуль содержит формы для работы с БД."""
 
 import tkinter as tk
 from tkinter.messagebox import askyesno, showerror, showinfo
 
 import config as conf
-from scripts.db_class import CouchDB
+from scripts.data_processing.db_class import CouchDB
 from scripts.gui.base_form import BaseForm
 
 
@@ -41,7 +41,7 @@ class DataLoadForm(BaseDataForm):
 
     @property
     def return_data(self):
-        """Свойства для получения данных из БД."""
+        """Свойство для получения данных из БД."""
         return self.__return_data
 
     def get_from_db(self):
@@ -70,7 +70,7 @@ class DataSaveForm(BaseDataForm):
         self.create_save_dialog()
 
     def create_save_dialog(self):
-        """Создает диалог для выбора сохранения в БД."""
+        """Создает диалог для подтверждения сохранения в БД."""
         res = askyesno(title="Сохранение", message="Сохранить результаты обучения в БД?")
         if res:
             self.deiconify()

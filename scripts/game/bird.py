@@ -50,6 +50,7 @@ class Bird(pg.sprite.Sprite):
 
     def update(self):
         """Реализует поведение птички при обновлении экрана."""
+        # Поворот птички
         if self.speed_x >= 0:
             self.image = self.image_right
         else:
@@ -81,6 +82,7 @@ class Bird(pg.sprite.Sprite):
 
         x = self.rect.x + self.speed_x
 
+        # Проверка столкновения с границами экрана
         if ((x + self.rect.width > config.WIDTH and self.speed_x > 0) or
                     (x < 0 and self.speed_x < 0)):
             self.kill()

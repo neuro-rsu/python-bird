@@ -17,7 +17,7 @@ class BaseForm(ABC, tk.Tk):
 
     def set_window_params(self, title, icon_path, resizable):
         """Устанавливает параметры окна.
-        
+
         Параметры:
         title - заголовок окна;
         icon_path - путь до иконки окна;
@@ -37,6 +37,5 @@ class BaseForm(ABC, tk.Tk):
 
     @abstractmethod
     def create_elements(self):
-        """Создает элементы главного окна приложения.
-        """
+        """Создает элементы главного окна приложения."""
         pass

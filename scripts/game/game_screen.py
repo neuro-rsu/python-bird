@@ -7,7 +7,7 @@ import pygame as pg
 import config as conf
 from scripts.gui.db_forms import DataSaveForm
 from scripts.game.bird import Bird
-from scripts.nn.neural_network import NeuralNetwork
+from scripts.neural.neural_network import NeuralNetwork
 
 
 class GameManager:
@@ -19,7 +19,7 @@ class GameManager:
         self.times = []
 
     def set_game_data(self):
-        """Устанавливает параметры генетического алгоритма для класса Bird."""
+        """Устанавливает параметры генетического алгоритма и игры."""
         Bird.mutation = self.data["mutation"]
         Bird.rotations = self.data["rotations"]
         Bird.multiplier = self.data["multiplier"]
@@ -104,7 +104,7 @@ class Game:
         return birds
 
     def get_text(self):
-        """Возвращает текстовый объект с текущим номером популяции птичек."""
+        """Возвращает текстовый объект с отображаемыми параметрами игры."""
         font = pg.font.Font(None, 36)
         text = f"Этап: {self.stage} | Популяция: {self.population} | "
         text += f"Птиц: {len(self.birds.sprites())}"
@@ -160,7 +160,7 @@ class Game:
             self.handle_events()
             self.draw()
 
-            # Тест
+            # Обучение окончено
             if conf.best_brain.cost > conf.best_score:
                 #print(conf.best_brain.get_params())
                 return

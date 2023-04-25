@@ -18,25 +18,25 @@ class DataAnalyst:
         # Число интервалов по правилу Стёрджеса
         self.interval_count = ceil(1 + 3.322*log10(len(self.times)))
 
-    def group_by_interval(self):
-        """Возвращает частоты и интервалы."""
+    def split_into_intervals(self):
+        """Разбивает данные на интервалы."""
         return pd.cut(self.times, bins=self.interval_count).value_counts().sort_index()
 
     def get_describe_stat(self):
         """Возвращает описательную статистику результатов обучения."""
         # Расчет моды
-        intervals = self.group_by_interval()
+        intervals = self.split_into_intervals()
         frequencies = list(intervals)
         # Увеличение границ для предотвращения выхода за пределы списка
         frequencies.insert(0, 0)
         frequencies.append(0)
         # idmax() возвращает строку, а нужен кортеж
         max_int = str(intervals.idxmax())
-        max_int = sub(r'[\(\)\[\]]', '', max_int) # Удаление скобок
+        max_int = sub(r'[\(\)\[\]]', '', max_int) # Удаление всех скобок
         max_int = list(map(float, max_int.split(',')))
 
         mode_idx = frequencies.index(max(frequencies))
-        # Расчет числителя, дроби моды и самой моды
+        # Расчет числителя, дроби и самой моды
         num = frequencies[mode_idx] - frequencies[mode_idx - 1]
         fraction = num / (num + (frequencies[mode_idx] - frequencies[mode_idx + 1]))
         mode = max_int[0] + (max_int[1] - max_int[0]) * fraction
